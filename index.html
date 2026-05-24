@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rally.AI — 시니어 테니스 AI 매칭 클럽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy-2: #0f1830;
+    --navy-3: #1a2540;
+    --neon: #b8ff57;
+    --neon-dim: #8fd43a;
+    --white: #f5f5f0;
+    --gray: #8a9ab5;
+    --gold: #e8c87a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 28px;
+    background: linear-gradient(to bottom, rgba(10,15,30,0.95), transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--white);
+  }
+
+  .logo span { color: var(--neon); }
+
+  .nav-badge {
+    background: var(--neon);
+    color: var(--navy);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-badge {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(184,255,87,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(184,255,87,0); }
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 28px 60px;
+    overflow: hidden;
+  }
+
+  /* 배경 테니스 코트 라인 */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgba(184,255,87,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,255,87,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: grid-drift 20s linear infinite;
+  }
+
+  @keyframes grid-drift {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .eyebrow-line {
+    width: 32px;
+    height: 2px;
+    background: var(--neon);
+  }
+
+  .eyebrow-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--neon);
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: clamp(30px, 8vw, 52px);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .hero h1 .accent {
+    color: var(--neon);
+    font-style: italic;
+    font-family: 'DM Serif Display', serif;
+  }
+
+  .hero-sub {
+    font-size: clamp(14px, 3.5vw, 17px);
+    color: var(--gray);
+    line-height: 1.8;
+    margin: 20px 0 36px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+    max-width: 480px;
+  }
+
+  .hero-sub strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .cta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+  }
+
+  .btn-primary {
+    display: block;
+    background: var(--neon);
+    color: var(--navy);
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 15px;
+    padding: 18px 28px;
+    border-radius: 4px;
+    text-align: center;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:active::after { opacity: 0.15; }
+
+  .btn-primary:hover {
+    background: #caff6e;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(184,255,87,0.35);
+  }
+
+  .btn-secondary {
+    display: block;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 16px 28px;
+    border-radius: 4px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--neon);
+    color: var(--neon);
+  }
+
+  /* 스크롤 힌트 */
+  .scroll-hint {
+    margin-top: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1.2s forwards;
+  }
+
+  .scroll-hint span {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .scroll-arrow {
+    width: 24px;
+    height: 24px;
+    border-right: 2px solid var(--gray);
+    border-bottom: 2px solid var(--gray);
+    transform: rotate(45deg);
+    animation: bounce 1.5s ease infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: rotate(45deg) translateY(0); }
+    50% { transform: rotate(45deg) translateY(5px); }
+  }
+
+  /* 큰 배경 텍스트 */
+  .hero-bg-text {
+    position: absolute;
+    bottom: -20px;
+    right: -10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 25vw, 180px);
+    color: rgba(184,255,87,0.04);
+    letter-spacing: -2px;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: var(--neon);
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-around;
+    gap: 16px;
+  }
+
+  .stat-item {
+    text-align: center;
+    flex: 1;
+  }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--navy);
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(10,15,30,0.6);
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 72px 28px;
+  }
+
+  .section-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--neon);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-eyebrow::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: var(--neon);
+  }
+
+  .section-title {
+    font-size: clamp(24px, 6vw, 38px);
+    font-weight: 900;
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+
+  .section-body {
+    font-size: 15px;
+    color: var(--gray);
+    line-height: 1.9;
+  }
+
+  /* ── PAIN SECTION ── */
+  .pain-section {
+    background: var(--navy-2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pain-section::after {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    right: 10px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 200px;
+    color: rgba(184,255,87,0.05);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .pain-quote {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(18px, 5vw, 26px);
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--white);
+    margin: 28px 0;
+    padding-left: 20px;
+    border-left: 3px solid var(--neon);
+  }
+
+  .pain-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .pain-tag {
+    background: rgba(184,255,87,0.08);
+    border: 1px solid rgba(184,255,87,0.2);
+    color: var(--neon);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 20px;
+  }
+
+  /* ── SERVICES ── */
+  .services-section { background: var(--navy); }
+
+  .service-card {
+    background: var(--navy-2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .service-card:hover {
+    border-color: rgba(184,255,87,0.3);
+    transform: translateY(-3px);
+  }
+
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--neon);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+    transform-origin: bottom;
+  }
+
+  .service-card:hover::before { transform: scaleY(1); }
+
+  .service-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: rgba(184,255,87,0.15);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .service-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .service-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .service-tag {
+    background: var(--neon);
+    color: var(--navy);
+    font-size: 9px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  .service-desc {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.8;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how-section { background: var(--navy-3); }
+
+  .steps {
+    margin-top: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    padding-bottom: 36px;
+    position: relative;
+  }
+
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 42px;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, rgba(184,255,87,0.4), transparent);
+  }
+
+  .step-num {
+    width: 40px;
+    height: 40px;
+    background: var(--neon);
+    color: var(--navy);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .step-content {}
+
+  .step-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 8px;
+    padding-top: 8px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.8;
+  }
+
+  /* ── VENUE ── */
+  .venue-section { background: var(--navy-2); }
+
+  .venue-card {
+    margin-top: 32px;
+    border: 1px solid rgba(184,255,87,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .venue-visual {
+    height: 160px;
+    background: linear-gradient(135deg, var(--navy-3) 0%, #0d2040 50%, #1a3060 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 테니스 코트 SVG 시각화 */
+  .court-lines {
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+  }
+
+  .venue-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: rgba(184,255,87,0.6);
+    letter-spacing: 4px;
+    z-index: 1;
+  }
+
+  .venue-body {
+    padding: 24px;
+  }
+
+  .venue-point {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .venue-point:last-child { border-bottom: none; }
+
+  .venue-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--neon);
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .venue-point-text {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.7;
+  }
+
+  .venue-point-text strong { color: var(--white); }
+
+  /* ── SCARCITY ── */
+  .scarcity-section {
+    background: linear-gradient(135deg, #0f1830 0%, #0a1520 100%);
+    border-top: 1px solid rgba(184,255,87,0.2);
+    border-bottom: 1px solid rgba(184,255,87,0.2);
+    text-align: center;
+    padding: 60px 28px;
+  }
+
+  .scarcity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(184,255,87,0.1);
+    border: 1px solid rgba(184,255,87,0.4);
+    color: var(--neon);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+
+  .dot-live {
+    width: 8px;
+    height: 8px;
+    background: var(--neon);
+    border-radius: 50%;
+    animation: blink 1s ease infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .scarcity-title {
+    font-size: clamp(26px, 7vw, 42px);
+    font-weight: 900;
+    line-height: 1.25;
+    margin-bottom: 16px;
+  }
+
+  .scarcity-title .neon { color: var(--neon); }
+
+  .scarcity-sub {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.8;
+    margin-bottom: 36px;
+  }
+
+  /* 슬롯 바 */
+  .slots-bar {
+    max-width: 360px;
+    margin: 0 auto 12px;
+  }
+
+  .slots-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+
+  .slots-label strong { color: var(--neon); }
+
+  .bar-track {
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    width: 75%;
+    background: linear-gradient(90deg, var(--neon-dim), var(--neon));
+    border-radius: 4px;
+    animation: fill-anim 1.5s ease 0.5s both;
+  }
+
+  @keyframes fill-anim {
+    from { width: 0; }
+    to { width: 75%; }
+  }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    background: var(--navy);
+    padding: 72px 28px;
+    text-align: center;
+  }
+
+  .final-cta .section-title { margin-bottom: 12px; }
+
+  .final-cta .section-body {
+    margin-bottom: 36px;
+    font-size: 14px;
+  }
+
+  .cta-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .guarantee {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy-2);
+    padding: 32px 28px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  .footer-logo span { color: var(--neon); }
+
+  .footer-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .footer-bottom {
+    font-size: 11px;
+    color: rgba(138,154,181,0.5);
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* ── FIXED BOTTOM CTA BAR ── */
+  .fixed-cta {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 200;
+    background: rgba(10,15,30,0.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(184,255,87,0.2);
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  .fixed-cta.visible {
+    transform: translateY(0);
+  }
+
+  .fixed-cta .btn-primary {
+    flex: 1;
+    font-size: 13px;
+    padding: 14px 12px;
+    white-space: nowrap;
+  }
+
+  .fixed-cta-kakao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: #FEE500;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 22px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .fixed-cta-kakao:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(254,229,0,0.4);
+  }
+
+  /* 하단 고정 바 높이만큼 페이지 여백 확보 */
+  body { padding-bottom: 80px; }
+</style>
+</head>
+<body>
+
+<!-- ── FIXED BOTTOM CTA ── -->
+<div class="fixed-cta" id="fixedCta">
+  <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-primary">
+    🎁 첫 달 무료 청강권 선물하기
+  </a>
+  <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="fixed-cta-kakao" title="카카오톡 예약">
+    💬
+  </a>
+</div>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="logo">RALLY<span>.AI</span></div>
+  <div class="nav-badge">🎾 강남 1기 모집중</div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <div class="eyebrow-line"></div>
+    <span class="eyebrow-text">AI Vision Tennis Matching</span>
+  </div>
+
+  <h1>
+    이번 주말도<br>
+    TV만 보실<br>
+    부모님께,<br>
+    <span class="accent">가장 힙한 선물</span>
+  </h1>
+
+  <p class="hero-sub">
+    AI가 딱 맞는 파트너를 찾아주는 <strong>프리미엄 시니어 테니스 소셜 클럽.</strong><br>
+    안전하게, 우아하게, 그리고 함께.
+  </p>
+
+  <div class="cta-group">
+    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-primary">
+      🎁 부모님께 첫 달 무료 청강권 선물하기
+    </a>
+    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-secondary">
+      카카오톡으로 3초 만에 예약하기 →
+    </a>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+
+  <div class="hero-bg-text">RALLY</div>
+</section>
+
+<!-- ── STATS ── -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">20<span style="font-size:18px">초</span></div>
+    <div class="stat-label">AI 스윙 분석</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">4<span style="font-size:18px">팀</span></div>
+    <div class="stat-label">1기 한정 모집</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">0<span style="font-size:18px">원</span></div>
+    <div class="stat-label">첫 달 청강</div>
+  </div>
+</div>
+
+<!-- ── PAIN ── -->
+<section class="pain-section reveal">
+  <div class="section-eyebrow">공감합니다</div>
+  <h2 class="section-title">혹시 이런 걱정<br>하고 계신가요?</h2>
+
+  <div class="pain-quote">
+    "은퇴 후 주말마다 TV만 보시는<br>아버지가 마음에 걸려요."
+  </div>
+
+  <div class="pain-quote">
+    "아빠가 테니스를 좋아하시는데<br>파트너가 없어서 혼자 벽치기만 하세요.<br>무릎 부상이 걱정됩니다."
+  </div>
+
+  <p class="section-body">
+    부모님이 좋아하시는 걸 알지만, 마땅한 파트너를 찾는 것도, 부상 없이 즐기시는 것도 걱정입니다. Rally.AI가 그 고민을 대신 해결해 드립니다.
+  </p>
+
+  <div class="pain-tags">
+    <span class="pain-tag"># 랠리 파트너가 없어요</span>
+    <span class="pain-tag"># 부상이 걱정돼요</span>
+    <span class="pain-tag"># 엄마는 테니스 못 치는데</span>
+    <span class="pain-tag"># 건강한 사회생활이 필요해요</span>
+  </div>
+</section>
+
+<!-- ── SERVICES ── -->
+<section class="services-section">
+  <div class="section-eyebrow reveal">3가지 솔루션</div>
+  <h2 class="section-title reveal">Rally.AI만의<br>차별화된 경험</h2>
+
+  <div class="service-card reveal reveal-delay-1">
+    <div class="service-num">01</div>
+    <div class="service-icon">🤖</div>
+    <div class="service-title">
+      AI 비전 랠리 매칭
+      <span class="service-tag">핵심기술</span>
+    </div>
+    <p class="service-desc">
+      스마트폰으로 스윙을 20초만 촬영하면, AI가 실력·속도·스타일을 분석해 딱 맞는 파트너를 연결합니다. 더 이상 실력 차이로 민망한 상황 없이, 매 세션이 즐거운 랠리가 됩니다.
+    </p>
+  </div>
+
+  <div class="service-card reveal reveal-delay-2">
+    <div class="service-num">02</div>
+    <div class="service-icon">🍵</div>
+    <div class="service-title">
+      부부동반 살롱 프로그램
+    </div>
+    <p class="service-desc">
+      남편이 코트에서 랠리를 즐기는 동안, 아내는 프리미엄 라운지에서 다도·필라테스·네트워킹을 우아하게 즐깁니다. 부부가 함께 오고, 함께 만족하는 유일한 테니스 클럽입니다.
+    </p>
+  </div>
+
+  <div class="service-card reveal reveal-delay-3">
+    <div class="service-num">03</div>
+    <div class="service-icon">🎓</div>
+    <div class="service-title">
+      선수 출신 캡틴 에스코트
+    </div>
+    <p class="service-desc">
+      전직 선수 출신 대학생 캡틴이 모든 세션에 동행합니다. 부상 예방 스트레칭부터 기술 피드백까지, 안전하고 체계적인 관리로 자녀분들도 안심할 수 있습니다.
+    </p>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+  <div class="section-eyebrow reveal">이용 방법</div>
+  <h2 class="section-title reveal">단 3단계로<br>시작하세요</h2>
+
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">카카오톡으로 3초 예약</div>
+        <p class="step-desc">아래 버튼을 눌러 카카오 오픈채팅방에 입장하세요. 복잡한 가입 없이 바로 상담이 시작됩니다.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">20초 스윙 영상 전송</div>
+        <p class="step-desc">부모님의 스윙 영상 20초를 전송하면 AI가 실력을 분석하고, 딱 맞는 파트너 후보를 매칭합니다.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">첫 달 무료 청강 체험</div>
+        <p class="step-desc">강남권 최고급 실내 테니스장에서 첫 세션을 무료로 경험하세요. 만족하시면 그때 결정하시면 됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── VENUE ── -->
+<section class="venue-section">
+  <div class="section-eyebrow reveal">공간 철학</div>
+  <h2 class="section-title reveal">가장 좋은 코트에서,<br>가장 프라이빗하게</h2>
+
+  <div class="venue-card reveal">
+    <div class="venue-visual">
+      <svg class="court-lines" viewBox="0 0 400 160" preserveAspectRatio="none">
+        <rect x="40" y="20" width="320" height="120" fill="none" stroke="#b8ff57" stroke-width="1.5"/>
+        <line x1="200" y1="20" x2="200" y2="140" stroke="#b8ff57" stroke-width="1"/>
+        <line x1="40" y1="80" x2="360" y2="80" stroke="#b8ff57" stroke-width="1"/>
+        <line x1="100" y1="20" x2="100" y2="140" stroke="#b8ff57" stroke-width="0.5"/>
+        <line x1="300" y1="20" x2="300" y2="140" stroke="#b8ff57" stroke-width="0.5"/>
+        <rect x="100" y="47" width="200" height="66" fill="none" stroke="#b8ff57" stroke-width="0.8"/>
+      </svg>
+      <span class="venue-label">PREMIUM</span>
+    </div>
+    <div class="venue-body">
+      <div class="venue-point">
+        <div class="venue-dot"></div>
+        <p class="venue-point-text"><strong>직접 시설을 짓지 않습니다.</strong> 강남권 최고급 실내 테니스장의 주말·평일 유휴 시간을 활용해 쾌적하고 프라이빗하게 운영됩니다.</p>
+      </div>
+      <div class="venue-point">
+        <div class="venue-dot"></div>
+        <p class="venue-point-text"><strong>서초·강남·송파</strong> 인근 최상급 인도어 코트만 엄선. 주차, 탈의실, 라운지 완비.</p>
+      </div>
+      <div class="venue-point">
+        <div class="venue-dot"></div>
+        <p class="venue-point-text">소수 정예 운영으로 <strong>혼잡하지 않고 쾌적한 환경</strong>이 보장됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SCARCITY ── -->
+<section class="scarcity-section">
+  <div class="scarcity-badge">
+    <div class="dot-live"></div>
+    지금 모집 중
+  </div>
+
+  <h2 class="scarcity-title reveal">
+    강남 1기<br>
+    단 <span class="neon">4부부(8명)</span><br>
+    한정 모집
+  </h2>
+
+  <p class="scarcity-sub reveal">
+    소수 정예 운영을 위해 첫 기수는 4팀만 모집합니다.<br>
+    이미 3팀이 예약을 완료했습니다.
+  </p>
+
+  <div class="slots-bar reveal">
+    <div class="slots-label">
+      <span>남은 자리</span>
+      <strong>1팀만 남았어요</strong>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ── -->
+<section class="final-cta">
+  <div class="section-eyebrow reveal" style="justify-content:center">지금 바로 시작하기</div>
+  <h2 class="section-title reveal">
+    부모님의 주말을<br>바꿔드리세요
+  </h2>
+  <p class="section-body reveal">
+    첫 달은 완전 무료입니다.<br>만족하셔야 결제가 시작됩니다.
+  </p>
+
+  <div class="cta-stack reveal">
+    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-primary">
+      🎁 부모님께 첫 달 무료 청강권 선물하기
+    </a>
+    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-secondary">
+      카카오톡으로 3초 만에 예약하기 →
+    </a>
+  </div>
+
+  <div class="guarantee reveal">
+    <span>🔒</span>
+    <span>만족하지 않으시면 100% 환불 보장</span>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">RALLY<span>.AI</span></div>
+  <p class="footer-desc">
+    AI 비전 기반 시니어 테니스 매칭 & 부부동반 소셜 클럽<br>
+    강남권 프리미엄 실내 테니스장 운영
+  </p>
+  <div class="footer-bottom">
+    © 2026 Rally.AI · 문의: 카카오톡 오픈채팅
+  </div>
+</footer>
+
+<script>
+  // 스크롤 reveal 애니메이션
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  reveals.forEach(el => observer.observe(el));
+
+  // 하단 고정 CTA — 히어로 섹션 지나면 등장
+  const fixedCta = document.getElementById('fixedCta');
+  const hero = document.querySelector('.hero');
+
+  const heroObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) {
+        fixedCta.classList.add('visible');
+      } else {
+        fixedCta.classList.remove('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  heroObserver.observe(hero);
+
+
+</script>
+</body>
+</html>

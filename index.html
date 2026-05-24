@@ -746,68 +746,9 @@
   .reveal-delay-1 { transition-delay: 0.1s; }
   .reveal-delay-2 { transition-delay: 0.2s; }
   .reveal-delay-3 { transition-delay: 0.3s; }
-
-  /* ── FIXED BOTTOM CTA BAR ── */
-  .fixed-cta {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 200;
-    background: rgba(10,15,30,0.96);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(184,255,87,0.2);
-    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  .fixed-cta.visible {
-    transform: translateY(0);
-  }
-
-  .fixed-cta .btn-primary {
-    flex: 1;
-    font-size: 13px;
-    padding: 14px 12px;
-    white-space: nowrap;
-  }
-
-  .fixed-cta-kakao {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: #FEE500;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 22px;
-    flex-shrink: 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .fixed-cta-kakao:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(254,229,0,0.4);
-  }
-
-  /* 하단 고정 바 높이만큼 페이지 여백 확보 */
-  body { padding-bottom: 80px; }
 </style>
 </head>
 <body>
-
-<!-- ── FIXED BOTTOM CTA ── -->
-<div class="fixed-cta" id="fixedCta">
-  <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-primary">
-    🎁 첫 달 무료 청강권 선물하기
-  </a>
-  <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="fixed-cta-kakao" title="카카오톡 예약">
-    💬
-  </a>
-</div>
 
 <!-- ── NAV ── -->
 <nav>
@@ -835,10 +776,10 @@
   </p>
 
   <div class="cta-group">
-    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-primary">
+    <a href="https://open.kakao.com/placeholder" target="_blank" class="btn-primary">
       🎁 부모님께 첫 달 무료 청강권 선물하기
     </a>
-    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-secondary">
+    <a href="https://open.kakao.com/placeholder" target="_blank" class="btn-secondary">
       카카오톡으로 3초 만에 예약하기 →
     </a>
   </div>
@@ -874,10 +815,6 @@
 
   <div class="pain-quote">
     "은퇴 후 주말마다 TV만 보시는<br>아버지가 마음에 걸려요."
-  </div>
-
-  <div class="pain-quote">
-    "아빠가 테니스를 좋아하시는데<br>파트너가 없어서 혼자 벽치기만 하세요.<br>무릎 부상이 걱정됩니다."
   </div>
 
   <p class="section-body">
@@ -1036,10 +973,10 @@
   </p>
 
   <div class="cta-stack reveal">
-    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-primary">
+    <a href="https://open.kakao.com/placeholder" target="_blank" class="btn-primary">
       🎁 부모님께 첫 달 무료 청강권 선물하기
     </a>
-    <a href="https://open.kakao.com/o/gy0nunwi" target="_blank" class="btn-secondary">
+    <a href="https://open.kakao.com/placeholder" target="_blank" class="btn-secondary">
       카카오톡으로 3초 만에 예약하기 →
     </a>
   </div>
@@ -1058,7 +995,7 @@
     강남권 프리미엄 실내 테니스장 운영
   </p>
   <div class="footer-bottom">
-    © 2026 Rally.AI · 문의: 카카오톡 오픈채팅
+    © 2025 Rally.AI · 문의: 카카오톡 오픈채팅
   </div>
 </footer>
 
@@ -1075,23 +1012,14 @@
 
   reveals.forEach(el => observer.observe(el));
 
-  // 하단 고정 CTA — 히어로 섹션 지나면 등장
-  const fixedCta = document.getElementById('fixedCta');
-  const hero = document.querySelector('.hero');
-
-  const heroObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) {
-        fixedCta.classList.add('visible');
-      } else {
-        fixedCta.classList.remove('visible');
-      }
+  // CTA 버튼 클릭 추적 (카카오 링크 플레이스홀더 안내)
+  document.querySelectorAll('a[href*="placeholder"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('🎾 카카오톡 오픈채팅 링크를\n실제 링크로 교체해 주세요!\n\nhref="https://open.kakao.com/o/YOUR_LINK"');
     });
-  }, { threshold: 0.1 });
-
-  heroObserver.observe(hero);
-
-
+  });
 </script>
 </body>
 </html>
+
